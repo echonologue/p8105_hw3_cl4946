@@ -15,7 +15,7 @@ class(ny_noaa)
 
 
 ```{r}
-date = ny_noaa$date
+
 
 ny_noaa|>
   select(date) |>
@@ -25,5 +25,21 @@ ny_noaa|>
     day = lubridate::day(date)
   )
 
+## to check whether data is in reasonable data 
+ny_noaa |>
+  summarize(
+    min_tmax = min(tmax, na.rm = TRUE),
+    max_tmax = max(tmax, na.rm = TRUE),
+    min_tmin = min(tmin, na.rm = TRUE),
+    max_tmin = max(tmin, na.rm = TRUE),
+    min_prcp = min(prcp, na.rm = TRUE),
+    max_prcp = max(prcp, na.rm = TRUE),
+    min_snow = min(snow, na.rm = TRUE),
+    max_snow = max(snow, na.rm = TRUE)
+  )
+
+ny_noaa |>
+  filter(snow < 0 | snow > 1000) |>
+  count(snow, sort = TRUE)
 ```
 
