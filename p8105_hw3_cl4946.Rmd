@@ -5,7 +5,25 @@ output: github_document
 ---
 
 ```{r}
+library(tidyverse)
 library(p8105.datasets)
 data("ny_noaa")
+View(ny_noaa)
+class(ny_noaa)
+
+```
+
+
+```{r}
+date = ny_noaa$date
+
+ny_noaa|>
+  select(date) |>
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date)
+  )
+
 ```
 
