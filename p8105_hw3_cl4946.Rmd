@@ -96,9 +96,36 @@ A few outliers are visible. For example, January has unusually low temperatures 
 
 
 
-### Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+###  Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
+For the first plot I want to use hexagonal plot
 ```{r}
-
+ny_noaa_clean |>
+  filter(!is.na(tmin), !is.na(tmax)) |>
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex(bins = 40) +
+  labs(
+    title = "Maximum vs Minimum Temperature",
+    x = "Minimum temperature (°C)",
+    y = "Maximum temperature (°C)"
+  )
 ```
 
+Then we make the boxplot for the seoncd graph:
+
+```{r}
+ny_noaa_clean |>
+  filter(snow > 0, snow < 100) |>
+  ggplot(aes(x = factor(year), y = snow)) +
+  geom_boxplot() +
+  labs(
+    title = "Snowfall Distribution by Year",
+    x = "Year",
+    y = "Snowfall (mm)"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)
+  )
+```
+Explaination: The snowfall distributions are fairly consistent across years. Most years have a median snowfall of approximately 25 mm, with the middle 50% of observations ranging from about 10 mm to 51 mm. There is no clear long-term trend in the distribution.
+Some differences are visible in 1998, 2006, and 2010, where the upper quartiles are lower than in most other years. A few outliers near 100 mm are also observed. The repeated values around 13, 25, and 51 mm may be related to snowfall measurements originally recorded in inches and then converted to millimeters.
