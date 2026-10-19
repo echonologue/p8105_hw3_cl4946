@@ -26,7 +26,19 @@ ny_noaa|>
   )
 
 ## to check whether data is in reasonable data 
-ny_noaa |>
+ny_noaa_clean =
+  ny_noaa |>
+  janitor::clean_names() |>
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    tmax = as.numeric(tmax) / 10,
+    tmin = as.numeric(tmin) / 10,
+    prcp = prcp / 10
+  )
+
+ny_noaa_clean |>
   summarize(
     min_tmax = min(tmax, na.rm = TRUE),
     max_tmax = max(tmax, na.rm = TRUE),
@@ -38,8 +50,14 @@ ny_noaa |>
     max_snow = max(snow, na.rm = TRUE)
   )
 
-ny_noaa |>
-  filter(snow < 0 | snow > 1000) |>
-  count(snow, sort = TRUE)
+snow_most_common = 
+  ny_noaa_clean |>
+  filter(!is.na(snow)) |>
+  count(snow, sort = TRUE) |>
+  head(10)
+
+snow_most_common
 ```
+
+The most commonly observed snowfall value is `r snow_summary$snow[1]` mm, with `r snow_summary$n[1]` observations. This is expected because most recorded station-days have no snowfall.
 
