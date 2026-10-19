@@ -13,7 +13,7 @@ class(ny_noaa)
 
 ```
 
-
+### First to have a look of the data
 ```{r}
 
 
@@ -60,4 +60,45 @@ snow_most_common
 ```
 
 The most commonly observed snowfall value is `r snow_summary$snow[1]` mm, with `r snow_summary$n[1]` observations. This is expected because most recorded station-days have no snowfall.
+
+### Then we make two panel plot showing the average max temp:
+```{r}
+temp_summary =
+  ny_noaa_clean |>
+  filter(month %in% c(1,7))|>
+  group_by(id, year, month) |>
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    .groups = "drop"
+     )
+
+temp_summary |>
+  filter(!is.na(mean_tmax)) |>
+  mutate(
+    month = factor(
+      month,
+      levels = c(1, 7),
+      labels = c("January", "July")
+    )
+  ) |>
+  ggplot(aes(x = year, y = mean_tmax)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~ month, ncol = 2) +
+  labs(
+    title = "Average Maximum Temperature in January and July",
+    x = "Year",
+    y = "Average maximum temperature (°C)"
+  )
+```
+
+The plot shows a clear seasonal difference between January and July. Average maximum temperatures in January are generally around -8°C to 8°C, while July temperatures are mostly between 22°C and 32°C. There is also some variation across years, but no clear long-term increasing or decreasing trend.
+A few outliers are visible. For example, January has unusually low temperatures around -14°C. July also has some unusually low values, such as around 14°C. 
+
+
+
+### Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+
+```{r}
+
+```
 
