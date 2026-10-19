@@ -1,0 +1,11 @@
+---
+title: "p8105_hw3_cl4946"
+author: "Chen Li"
+output: github_document
+---
+
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+```
+
