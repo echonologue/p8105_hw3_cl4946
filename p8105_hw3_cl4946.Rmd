@@ -452,3 +452,83 @@ rides_table |>
 We can see that members have more rides than casual riders in all. Also, July has more rides than January in both 2020 and 2024. This may be because the weather is warmer in summer, so more people choose to ride bikes than train or taxi. The number of rides also increased from 2020 to 2024, especially in July, where total rides increased from 21,048 to 47,156.
 
 Overall, members account for most of the rides, and Citi Bike usage in the sample is higher in summer and in 2024.
+
+
+```{r}
+
+top_stations =
+  citibike_data |>
+  filter(year == 2024, month == "July") |>
+  filter(!is.na(start_station_name)) |>
+  count(start_station_name, sort = TRUE) |>
+  slice_head(n = 5)
+
+top_stations |>
+  knitr::kable(
+    caption = "Top 5 Starting Stations in July 2024",
+    col.names = c("Starting Station", "Number of Rides")
+  )
+```
+In July 2024, Pier 61 at Chelsea Piers was the most popular starting station in the sample, with 163 rides, followed by University Pl & E 14 St with 155 rides.
+
+```{r}
+duration_summary =
+  citibike_data |>
+  group_by(year, month, weekdays) |>
+  summarize(
+    median_duration = median(duration, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+duration_summary |>
+  ggplot(
+    aes(
+      x = weekdays,
+      y = median_duration,
+      color = month,
+      group = month
+    )
+  ) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~ year) +
+  labs(
+    title = "Median Ride Duration by Weekday, Month, and Year",
+    x = "Day of the week",
+    y = "Median ride duration (minutes)",
+    color = "Month"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+we can observe the median ride duration is generally longer in July than January in both years. In 2020, July rides are around 13 to 17 minutes, while January rides are mostly around 8 to 10 minutes. This may be because the weather is warmer in summer and people are more willing to ride for longer. And the weekend rides also tend to be longer, especially in July 2020. Those have the highest median durations. In 2024, the weekend increase is less noticeable, although July still has longer rides than January.
+
+Another interesting thing is that median ride duration is generally lower in 2024 compared to 2020, even though there are more rides in 2024. Overall, month and year seem to show clearer differences than day of the week.
+
+#### Last part of Question 3:
+```{r}
+citibike_data |>
+  filter(year == 2024) |>
+  ggplot(
+    aes(
+      x = member_casual,
+      y = duration,
+      fill = rideable_type
+    )
+  ) +
+  geom_boxplot() +
+  facet_wrap(~ month) +
+  labs(
+    title = "Ride Duration by Month, Membership, and Bike Type in 2024",
+    x = "Membership status",
+    y = "Ride duration (minutes)",
+    fill = "Bike type"
+  )
+```
+I chose boxplot here since it helps us compare the distribution of ride duration across different groups. We also separated January and July into two panels to make the comparison easier.
+
+From the boxplot, we can see that casual riders generally have longer ride durations than members in both months. This difference is more clear for classic bikes, while members using classic and electric bikes have pretty similar ride durations. Also, rides in July tend to be longer than those in January, especially for casual riders. For casual riders, classic bikes usually have a higher median ride duration than electric bikes, but the difference is smaller for members. There are also many outliers with very long ride durations, some even above 200 minutes. This shows that most rides are relatively short, but some rides last much longer. Overall, membership status and month seem to show clearer differences in ride duration, while bike type also has some differences.
