@@ -140,6 +140,24 @@ nhanes_covar =
 nhanes_accel = 
   read_csv("p8105_hw3_data/nhanes_accel.csv")
 
+head(nhanes_covar)
+janitor::clean_names(nhanes_covar)
 head(nhanes_accel)
+
+nhanes_accel = 
+  read_csv("p8105_hw3_data/nhanes_accel.csv")
+glimpse(nhanes_covar)
+```
+```{r}
+nhanes_accel_long =
+  nhanes_accel |>
+  pivot_longer(
+    cols = starts_with("min"),
+    names_to = "mintue",
+    values_to = "MIMS"
+  )
+head(nhanes_accel_long)
+
+
 ```
 
