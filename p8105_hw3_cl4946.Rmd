@@ -12,7 +12,7 @@ View(ny_noaa)
 class(ny_noaa)
 
 ```
-
+# Problem 1
 ### First to have a look of the data
 ```{r}
 
@@ -129,3 +129,17 @@ ny_noaa_clean |>
 ```
 Explaination: The snowfall distributions are fairly consistent across years. Most years have a median snowfall of approximately 25 mm, with the middle 50% of observations ranging from about 10 mm to 51 mm. There is no clear long-term trend in the distribution.
 Some differences are visible in 1998, 2006, and 2010, where the upper quartiles are lower than in most other years. A few outliers near 100 mm are also observed. The repeated values around 13, 25, and 51 mm may be related to snowfall measurements originally recorded in inches and then converted to millimeters.
+
+
+# Problem 2
+First we need to read the data:
+```{r}
+nhanes_covar = 
+  read_csv("p8105_hw3_data/nhanes_covar.csv")
+
+nhanes_accel = 
+  read_csv("p8105_hw3_data/nhanes_accel.csv")
+
+head(nhanes_accel)
+```
+
