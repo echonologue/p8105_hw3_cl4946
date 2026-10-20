@@ -337,3 +337,118 @@ From the graph, we can see that all three education groups have a similar patter
 There are also some differences between male and female. In the less than high school group, their activity levels are pretty similar. In the high school equivalent group, female have slightly higher activity during some daytime hours. The difference is more clear in the more than high school group, where female generally have higher activity levels than male during the day. Overall, the three education groups show similar patterns over 24 hours, but the activity levels are not exactly the same. The more than high school group seems to have more stable activity during daytime, while the less than high school group has a more noticeable morning peak.
 
 
+# Question 3
+```{r}
+citibike_2020_jan =
+  read_csv("p8105_hw3_data/citibike/Jan 2020 Citi.csv.zip")
+
+dim(citibike_2020_jan)
+
+names(citibike_2020_jan)
+
+head(citibike_2020_jan)
+
+citibike_2020_july =
+  read_csv("p8105_hw3_data/citibike/July 2020 Citi.csv.zip")
+
+citibike_2024_jan =
+  read_csv("p8105_hw3_data/citibike/Jan 2024 Citi.csv.zip")
+
+citibike_2024_july =
+  read_csv("p8105_hw3_data/citibike/July 2024 Citi.csv.zip")
+names(citibike_2024_july)
+
+
+
+```
+```{r}
+citibike_data =
+  bind_rows(
+    citibike_2020_jan |>
+      mutate(year = 2020, month = "January"),
+
+    citibike_2020_july |>
+      mutate(year = 2020, month = "July"),
+
+    citibike_2024_jan |>
+      mutate(year = 2024, month = "January"),
+
+    citibike_2024_july |>
+      mutate(year = 2024, month = "July")
+  )
+
+```
+
+
+```{r}
+citibike_data = 
+  citibike_data |>
+  mutate(
+    weekdays = factor(
+      weekdays,
+      levels = c(
+       "Monday", "Tuesday", "Wednesday", "Thursday",
+        "Friday", "Saturday", "Sunday"
+      ),
+      ordered = TRUE
+      ),
+     month = factor(
+      month,
+      levels = c("January", "July"),
+      ordered = TRUE
+    ),
+    member_casual = factor(member_casual),
+    rideable_type = factor(rideable_type)
+    )
+```
+
+```{r}
+glimpse(citibike_data)
+```
+
+```{r}
+citibike_data |>
+  count(year, month)
+
+
+citibike_data |>
+  summarize(
+    n_rides = n(),
+    n_stations = n_distinct(start_station_name),
+    median_duration = median(duration, na.rm = TRUE)
+  )
+```
+
+After combining and cleaning the four datasets, the final Citi Bike dataset contains 99,485 rides and 9 variables. The data includes January and July in both 2020 and 2024, with 2,241 different starting stations. The median ride duration is about 9.84 minutes.
+
+From the data, we can see that July has more rides than January in both years. The number of rides is also higher in 2024 compared to 2020, especially in July. This may be related to seasonal differences and the increased use of Citi Bike over time.
+
+
+```{r}
+citibike_data |>
+  count(year, month, member_casual)
+```
+
+```{r}
+rides_table = 
+  citibike_data |>
+  count(year, month, member_casual) |>
+  pivot_wider(
+    names_from = member_casual,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  mutate(
+    total = casual + member
+  )
+
+
+rides_table |>
+  knitr::kable(
+    caption = " Citi Bike Rides by Year, Month, and Membership",
+    col.names = c("year","month","casual","member","total")
+  )
+```
+We can see that members have more rides than casual riders in all. Also, July has more rides than January in both 2020 and 2024. This may be because the weather is warmer in summer, so more people choose to ride bikes than train or taxi. The number of rides also increased from 2020 to 2024, especially in July, where total rides increased from 21,048 to 47,156.
+
+Overall, members account for most of the rides, and Citi Bike usage in the sample is higher in summer and in 2024.
