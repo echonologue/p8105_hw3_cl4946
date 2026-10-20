@@ -235,4 +235,99 @@ nhanes_data |>
     missing_mims = sum(is.na(mims))
   )
 ```
+##Problem2 continuting 
 
+```{r}
+demographic_table =
+  nhanes_data |>
+  distinct(seqn, sex, education) |>
+  count(education, sex) |>
+  pivot_wider(
+    names_from = sex,
+    values_from = n
+  )
+
+demographic_table |>
+  knitr::kable(
+    caption = "Number of Participants by Sex and Education"
+  )
+
+```
+
+```{r}
+nhanes_covar_clean |>
+  ggplot(aes(x = education, y = age, fill = sex)) +
+  geom_boxplot() +
+  labs(
+    title = "Age Distribution by Sex and Education",
+    x = "Education level",
+    y = "Age (years)",
+    fill = "Sex"
+  )
+```
+
+From the graph, we can observe that the largest group is participants with more than a high school education 115 participants. The numbers of men and women are relatively balanced overall, though there are more men (35) than women (23) in th equivalent group.
+
+The boxplot shows that participants with more than a high school education tend to be younger, with median ages around 40 to 45 years for both men and women. Participants with less than a high school education have higher median ages, around 60 years. In the high school equivalent group, women have a higher median age than men. Overall, age distributions vary across education levels, with some differences between men and women.
+
+
+## Problem2 last part: total daily activity:
+
+First to observe the 1440 mins for the total daily activity: 
+```{r}
+total_activity_data =
+  nhanes_data |>
+  group_by(seqn) |>
+  mutate(
+    total_activity = sum(mims)
+  ) |>
+  ungroup() |>
+  distinct(seqn, .keep_all = TRUE)
+```
+
+```{r}
+total_activity_data |>
+  ggplot(aes(x = age, y = total_activity, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(se = FALSE) +
+  facet_wrap(~ education) +
+  labs(
+    title = "Total Daily Activity by Age, Sex, and Education",
+    x = "Age (years)",
+    y = "Total daily activity (MIMS)",
+    color = "Sex"
+  )
+```
+
+From the plot, we can see that total daily activity generally goes down as age increases in all three education groups. The trend is not always linear, but older participants usually have lower activity levels.
+
+There are also some differences between male and female. In the high school equivalent and more than high school groups, female tend to have higher activity levels at some ages. However, this pattern is not the same for all age groups, and the two lines sometimes cross each other.
+
+Also, participants at similar ages can have very different activity levels. One outlier is a participant around age 36 in the more than high school group, who has almost zero total activity. Overall, age seems to have a relationship with daily activity, but the differences between sex and education groups are not always clear.
+
+
+#### Then to calculate the 24h
+```{r}
+activity_by_minute =
+  nhanes_data |>
+  group_by(education, sex, minute) |>
+  summarize(
+    mean_mims = mean(mims),
+    .groups = "drop"
+  )
+
+activity_by_minute |>
+  ggplot(aes(x = minute, y = mean_mims, color = sex)) +
+  geom_line(alpha = 0.7) +
+  facet_wrap(~ education, ncol = 3) +
+  labs(
+    title = "24-Hour Activity Patterns by Sex and Education",
+    x = "Minute of the day",
+    y = "Average MIMS",
+    color = "Sex"
+  )
+
+```
+From the graph, we can see that all three education groups have a similar pattern. Activity is lowest during the early morning, then increases quickly after people wake up. It stays relatively high during the daytime and starts to decrease again in the evening.
+
+There are also some differences between male and female. In the less than high school group, their activity levels are pretty similar. In the high school equivalent group, female have slightly higher activity during some daytime hours. The difference is more clear in the more than high school group, where female generally have higher activity levels than male during the day. Overall, the three education groups show similar patterns over 24 hours, but the activity levels are not exactly the same. The more than high school group seems to have more stable activity during daytime, while the less than high school group has a more noticeable morning peak.
