@@ -12,8 +12,11 @@ View(ny_noaa)
 class(ny_noaa)
 
 ```
+
 # Problem 1
+
 ### First to have a look of the data
+
 ```{r}
 
 
@@ -62,6 +65,7 @@ snow_most_common
 The most commonly observed snowfall value is `r snow_summary$snow[1]` mm, with `r snow_summary$n[1]` observations. This is expected because most recorded station-days have no snowfall.
 
 ### Then we make two panel plot showing the average max temp:
+
 ```{r}
 temp_summary =
   ny_noaa_clean |>
@@ -91,14 +95,12 @@ temp_summary |>
   )
 ```
 
-The plot shows a clear seasonal difference between January and July. Average maximum temperatures in January are generally around -8°C to 8°C, while July temperatures are mostly between 22°C and 32°C. There is also some variation across years, but no clear long-term increasing or decreasing trend.
-A few outliers are visible. For example, January has unusually low temperatures around -14°C. July also has some unusually low values, such as around 14°C. 
+The plot shows a clear seasonal difference between January and July. Average maximum temperatures in January are generally around -8°C to 8°C, while July temperatures are mostly between 22°C and 32°C. There is also some variation across years, but no clear long-term increasing or decreasing trend. A few outliers are visible. For example, January has unusually low temperatures around -14°C. July also has some unusually low values, such as around 14°C.
 
-
-
-###  Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+### Make a two-panel plot showing (i) tmax vs tmin for the full dataset (note that a scatterplot may not be the best option); and (ii) make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
 For the first plot I want to use hexagonal plot
+
 ```{r}
 ny_noaa_clean |>
   filter(!is.na(tmin), !is.na(tmax)) |>
@@ -127,27 +129,28 @@ ny_noaa_clean |>
     axis.text.x = element_text(angle = 90, hjust = 1)
   )
 ```
-Explaination: The snowfall distributions are fairly consistent across years. Most years have a median snowfall of approximately 25 mm, with the middle 50% of observations ranging from about 10 mm to 51 mm. There is no clear long-term trend in the distribution.
-Some differences are visible in 1998, 2006, and 2010, where the upper quartiles are lower than in most other years. A few outliers near 100 mm are also observed. The repeated values around 13, 25, and 51 mm may be related to snowfall measurements originally recorded in inches and then converted to millimeters.
 
+Explaination: The snowfall distributions are fairly consistent across years. Most years have a median snowfall of approximately 25 mm, with the middle 50% of observations ranging from about 10 mm to 51 mm. There is no clear long-term trend in the distribution. Some differences are visible in 1998, 2006, and 2010, where the upper quartiles are lower than in most other years. A few outliers near 100 mm are also observed. The repeated values around 13, 25, and 51 mm may be related to snowfall measurements originally recorded in inches and then converted to millimeters.
 
 # Problem 2
+
 First we need to read the data:
+
 ```{r}
 nhanes_covar = 
-  read_csv("p8105_hw3_data/nhanes_covar.csv")
+  read_csv("p8105_hw3_data/nhanes_covar.csv",skip = 4)
 
 nhanes_accel = 
   read_csv("p8105_hw3_data/nhanes_accel.csv")
 
 head(nhanes_covar)
-janitor::clean_names(nhanes_covar)
+nhanes_covar =
+  nhanes_covar |>
+  janitor::clean_names()
 head(nhanes_accel)
-
-nhanes_accel = 
-  read_csv("p8105_hw3_data/nhanes_accel.csv")
 glimpse(nhanes_covar)
 ```
+
 ```{r}
 nhanes_accel_long =
   nhanes_accel |>
@@ -159,5 +162,77 @@ nhanes_accel_long =
 head(nhanes_accel_long)
 
 
+
+nhanes_covar_clean =
+  nhanes_covar |>
+  janitor::clean_names() |>
+  filter(age >= 21) |>
+  drop_na(sex, age, bmi, education) |>
+  mutate(
+    sex = factor(
+      sex,
+      levels = c(1, 2),
+      labels = c("Male", "Female")
+    ),
+    education = factor(
+      education,
+      levels = c(1, 2, 3),
+      labels = c(
+        "Less than high school",
+        "High school equivalent",
+        "More than high school"
+      ),
+      ordered = TRUE
+    )
+  )
+
+glimpse(nhanes_covar_clean)
+nhanes_covar_clean |>
+  summarize(
+    n_participants = n(),
+    min_age = min(age),
+    missing_bmi = sum(is.na(bmi)),
+    missing_edu = sum(is.na(education))
+  )
+```
+And then the accelerometer data: 
+```{r}
+nhanes_accel_long = 
+  nhanes_accel |>
+  janitor::clean_names() |>
+  pivot_longer(
+    cols = starts_with("min"),
+    names_to = "mintue",
+    names_prefix = "min",
+    values_to = "mims",
+    names_transform = list(minute = as.integer)
+  )
+  
+glimpse(nhanes_accel_long)
+```
+
+Left join
+```{r}
+nhanes_data =
+  nhanes_covar_clean |>
+  left_join(nhanes_accel_long, by = "seqn")
+
+
+nhanes_data |>
+  summarize(
+    n_participants = n_distinct(seqn),
+    n_observations = n(),
+    min_age = min(age),
+    missing_bmi = sum(is.na(bmi)),
+    missing_education = sum(is.na(education))
+  )
+
+glimpse(nhanes_data)
+
+nhanes_data |>
+  summarize(
+    missing_minute = sum(is.na(minute)),
+    missing_mims = sum(is.na(mims))
+  )
 ```
 
