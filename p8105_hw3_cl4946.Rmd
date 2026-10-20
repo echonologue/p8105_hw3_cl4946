@@ -325,9 +325,15 @@ activity_by_minute |>
     x = "Minute of the day",
     y = "Average MIMS",
     color = "Sex"
-  )
+  )+
+  scale_x_continuous(
+  breaks = c(1, 361, 721, 1081, 1440),
+  labels = c("00:00", "06:00", "12:00", "18:00", "24:00")
+)
 
 ```
 From the graph, we can see that all three education groups have a similar pattern. Activity is lowest during the early morning, then increases quickly after people wake up. It stays relatively high during the daytime and starts to decrease again in the evening.
 
 There are also some differences between male and female. In the less than high school group, their activity levels are pretty similar. In the high school equivalent group, female have slightly higher activity during some daytime hours. The difference is more clear in the more than high school group, where female generally have higher activity levels than male during the day. Overall, the three education groups show similar patterns over 24 hours, but the activity levels are not exactly the same. The more than high school group seems to have more stable activity during daytime, while the less than high school group has a more noticeable morning peak.
+
+
